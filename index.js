@@ -265,7 +265,7 @@ GeneratePackageJsonPlugin.prototype.apply = function (compiler) {
     const json = computePackageJson(compilation);
     for(const outDir of this.outDirs) {
       // NOT TESTED
-      compilation.assets[path.resolve(__dirname, outDir, 'package.json')] = {
+      compilation.assets[path.join(outDir, 'package.json')] = {
         source: function () {
           return json;
         },
@@ -281,7 +281,7 @@ GeneratePackageJsonPlugin.prototype.apply = function (compiler) {
     const json = computePackageJson(compilation);
     for(const outDir of this.outDirs) {
       compilation.emitAsset(
-        path.resolve(__dirname, outDir, 'package.json'), 
+        path.join(outDir, 'package.json'), 
         new sources.RawSource(json)
       );
     }
