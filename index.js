@@ -24,6 +24,7 @@ function GeneratePackageJsonPlugin(
     additionalDependencies = {},
     useInstalledVersions = true,
     resolveContextPaths,
+    outDirs = [ __dirname ],
   } = {}
 ) {
   if (debug) {
@@ -61,6 +62,7 @@ function GeneratePackageJsonPlugin(
     additionalDependencies,
     useInstalledVersions,
     resolveContextPaths,
+    outDirs
   });
 }
 
@@ -261,20 +263,28 @@ GeneratePackageJsonPlugin.prototype.apply = function (compiler) {
 
   const emitPackageJsonOld = (compilation, callback) => { // webpack 2-4
     const json = computePackageJson(compilation);
-    compilation.assets['package.json'] = {
-      source: function () {
-        return json;
-      },
-      size: function () {
-        return json.length;
-      }
-    };
+    for(const outDir of this.outDirs) {
+      // NOT TESTED
+      compilation.assets[path.resolve(__dirname, outDir, 'package.json')] = {
+        source: function () {
+          return json;
+        },
+        size: function () {
+          return json.length;
+        }
+      };
+    }
     callback();
   };
 
   const emitPackageJson = (compilation) => {
     const json = computePackageJson(compilation);
-    compilation.emitAsset('package.json', new sources.RawSource(json));
+    for(const outDir of this.outDirs) {
+      compilation.emitAsset(
+        path.resolve(__dirname, outDir, 'package.json'), 
+        new sources.RawSource(json)
+      );
+    }
   };
 
   if (isWebpack5) {
